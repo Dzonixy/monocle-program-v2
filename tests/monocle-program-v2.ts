@@ -22,7 +22,7 @@ describe('monocle-program-v2', () => {
   //   );
   // }
 
-  it('Is initialized!', async () => {
+  it('NFT Creation!', async () => {
     // Add your test here.
 
     const tx = await program.provider.connection.requestAirdrop(
@@ -47,7 +47,7 @@ describe('monocle-program-v2', () => {
 
     console.log("Airdrop transaction signature", tx);
     
-    const [metadata_account_pda, meta_bump] = await PublicKey.findProgramAddress(
+    const [metadataAccountPda, metaBump] = await PublicKey.findProgramAddress(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode("monocle")),
         mint.publicKey.toBuffer(),
@@ -55,11 +55,39 @@ describe('monocle-program-v2', () => {
       program.programId
     );
 
-    // const tx = await program.rpc.buyNft(
-    //   {
-    //   }
-    // );
+    const [monocleMetadataAccountPda, monoBump] = await PublicKey.findProgramAddress(
+      [
+        Buffer.from(anchor.utils.bytes.utf8.encode("monocle")),
+        mint.publicKey.toBuffer(),
+        Buffer.from(anchor.utils.bytes.utf8.encode("monocle-metadata"))
+    ],
+      program.programId
+    );
 
+    const likes = new anchor.BN(10);
+
+    const buyTx = await program.rpc.buyNft(
+      new anchor.BN(metaBump),
+      new anchor.BN(monoBump),
+      "test-name",
+      "test-symbol",
+      "test-uri",
+      likes,
+      {
+        accounts: {
+          metadataAccount: metadataAccountPda,
+          monocleMetadata: monocleMetadataAccountPda,
+          nftMint: mint.publicKey,
+          mintAuthority: program.programId,
+          payer: payer.publicKey,
+          systemProgram: SystemProgram.programId,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        },
+        signers: [payer]
+      }
+    );
+
+    console.log(buyTx);
 
   });
 });
