@@ -1,0 +1,21 @@
+[package]
+name = "monocle-program-v2"
+version = "0.1.0"
+description = "Created with Anchor"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "monocle_program_v2"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+
+[dependencies]
+anchor-lang = "0.20.1"
+anchor-spl = "0.20.1"
+mpl-token-metadata = { version = "1.2.5", features = ["no-entrypoint"] }

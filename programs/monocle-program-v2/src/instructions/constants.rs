@@ -1,0 +1,1 @@
+pub const MONOCLE_SEED: &[u8] = b"monocle";
