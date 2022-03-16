@@ -13,6 +13,7 @@ pub mod monocle_program_v2 {
     pub fn buy_nft(
         ctx: Context<BuyNft>, 
         meta_bump: u8,
+        mono_bump: u8,
         name: String, 
         symbol: String,
         uri: String,
@@ -21,6 +22,7 @@ pub mod monocle_program_v2 {
         instructions::buy_nft(
             ctx,  
             meta_bump,
+            mono_bump,
             name, 
             symbol,
             uri,

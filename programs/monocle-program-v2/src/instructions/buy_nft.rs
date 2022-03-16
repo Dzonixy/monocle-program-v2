@@ -21,17 +21,17 @@ use crate::{
 };
 
 #[derive(Accounts)]
-#[instruction(meta_bump: u8)]
+#[instruction(meta_bump: u8, mono_bump: u8)]
 pub struct BuyNft<'info> {
     #[account(
-        seeds = [MONOCLE_SEED],
+        seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref()],
         bump = meta_bump,
     )]
     pub metadata_account: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
-        seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref()],
-        bump = meta_bump,
+        seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref(), METADATA_SEED],
+        bump = mono_bump,
         payer = payer,
         space = MonocleNftMetadata::LEN,
     )]
@@ -49,7 +49,8 @@ pub struct BuyNft<'info> {
 
 pub fn buy_nft(
     ctx: Context<BuyNft>,
-    _meta_bump: u8, 
+    _meta_bump: u8,
+    _mono_bump: u8, 
     name: String, 
     symbol: String,
     uri: String,
