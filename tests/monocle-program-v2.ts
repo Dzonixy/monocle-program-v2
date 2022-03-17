@@ -14,14 +14,6 @@ describe('monocle-program-v2', () => {
   const payer = anchor.web3.Keypair.generate();
   const mintAuthority = program;
 
-  //   await this.token.mintTo(
-  //     this.tokenAccount,
-  //     this.mintAuthority.publicKey,
-  //     [this.mintAuthority],
-  //     this.depositAmount
-  //   );
-  // }
-
   it('NFT Creation!', async () => {
     // Add your test here.
 
