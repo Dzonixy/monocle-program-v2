@@ -7,12 +7,14 @@ use anchor_lang::{
     },
 };
 use anchor_spl::token::{Mint, Token};
-use mpl_token_metadata::
+use mpl_token_metadata::{
+    ID as METAPLEX_PROGRAM_SEED,
     state::{ 
         Metadata, 
         Data, 
         TokenStandard::NonFungible,
         Key::MetadataV1,
+    }
 }; 
 use crate::{
     state::*,
@@ -25,7 +27,7 @@ use crate::{
 pub struct BuyNft<'info> {
     #[account(
         mut,
-        seeds = [MONOCLE_SEED, nft_mint.key().as_ref()],
+        seeds = [METAPLEX_SEED, METAPLEX_PROGRAM_SEED.as_ref(), nft_mint.key().as_ref()],
         bump = meta_bump,
     )]
     pub metadata_account: UncheckedAccount<'info>,
@@ -94,7 +96,8 @@ pub fn buy_nft(
         );
 
         let seeds: &[&[_]] = &[
-            MONOCLE_SEED, 
+            METAPLEX_SEED, 
+            METAPLEX_PROGRAM_SEED.as_ref(),
             &ctx.accounts.nft_mint.key().to_bytes(), 
             &[meta_bump],
         ];
@@ -110,8 +113,6 @@ pub fn buy_nft(
         )?;
 
         ctx.accounts.metadata_account.data.borrow_mut().copy_from_slice(&serialized_data);
-
-        // msg!("\n\n\nMETAPLEX METADATA ACCOUNT DATA: {:?}\n\n\n", ctx.accounts.metadata_account.data);
 
         let monocle_metadata = &mut ctx.accounts.monocle_metadata;
         monocle_metadata.likes = likes;

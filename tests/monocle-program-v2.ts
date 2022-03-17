@@ -14,6 +14,9 @@ describe('monocle-program-v2', () => {
   const payer = anchor.web3.Keypair.generate();
   const mintAuthority = program;
 
+  const metaplexSeed = "metaplex";
+  const metaplexProgramId = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
+
   it('NFT Creation!', async () => {
     // Add your test here.
 
@@ -53,7 +56,8 @@ describe('monocle-program-v2', () => {
 
     const [metadataAccountPda, metaBump] = await PublicKey.findProgramAddress(
       [
-        Buffer.from(anchor.utils.bytes.utf8.encode("monocle")),
+        Buffer.from(metaplexSeed),
+        metaplexProgramId.toBuffer(),
         token.publicKey.toBuffer(),
     ],
       program.programId
