@@ -24,6 +24,7 @@ use crate::{
 #[instruction(meta_bump: u8, mono_bump: u8)]
 pub struct BuyNft<'info> {
     #[account(
+        mut,
         seeds = [MONOCLE_SEED, nft_mint.key().as_ref()],
         bump = meta_bump,
     )]
@@ -92,6 +93,8 @@ pub fn buy_nft(
             &ctx.program_id,
         );
 
+        // TODO: Fix signer privilege issue with metadata_account.
+        // The instruction handles the account as "signer", raising an error
         invoke(
             &create_account_instruction, 
             &[
@@ -101,6 +104,7 @@ pub fn buy_nft(
             ]
         )?;
 
+        msg!("Breakpoint 2!");
         ctx.accounts.metadata_account.data.borrow_mut().copy_from_slice(&serialized_data);
 
         let monocle_metadata = &mut ctx.accounts.monocle_metadata;
@@ -108,5 +112,6 @@ pub fn buy_nft(
         monocle_metadata.owner = ctx.accounts.payer.key();
         monocle_metadata.creator = ctx.accounts.mint_authority.key();
 
+        msg!("Instruction executed!");
         Ok(())
 }
