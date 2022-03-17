@@ -14,52 +14,56 @@ describe('monocle-program-v2', () => {
   const payer = anchor.web3.Keypair.generate();
   const mintAuthority = program;
 
-  //   await this.token.mintTo(
-  //     this.tokenAccount,
-  //     this.mintAuthority.publicKey,
-  //     [this.mintAuthority],
-  //     this.depositAmount
-  //   );
-  // }
-
   it('NFT Creation!', async () => {
     // Add your test here.
 
-    const tx = await program.provider.connection.requestAirdrop(
+    const airdrop_tx = await program.provider.connection.requestAirdrop(
       payer.publicKey,
       2000000000
     );
   
-    await program.provider.connection.confirmTransaction(tx);
+    await program.provider.connection.confirmTransaction(airdrop_tx);
   
-    const mint = await Token.createMint(
+    const token = await Token.createMint(
       program.provider.connection,
       payer,
-      mintAuthority.programId,
+      // mintAuthority.programId,
+      payer.publicKey,
       null,
       0,
       TOKEN_PROGRAM_ID
     );
 
-    const tokenAccount = await mint.createAssociatedTokenAccount(
+    const tokenAccount = await token.createAssociatedTokenAccount(
       payer.publicKey
     );
 
-    console.log("Airdrop transaction signature", tx);
+    await token.mintTo(
+      tokenAccount,
+      // mintAuthority.programId,
+      payer,
+      [payer],
+      1,
+    );
+
+    console.log("Airdrop transaction signature", airdrop_tx);
     
+    const tokenAccountData: any = await program.provider.connection.getParsedAccountInfo(tokenAccount);
+    console.log("Token amount => ", tokenAccountData.value.data.parsed.info.tokenAmount.amount);
+
     const [metadataAccountPda, metaBump] = await PublicKey.findProgramAddress(
       [
         Buffer.from(anchor.utils.bytes.utf8.encode("monocle")),
-        mint.publicKey.toBuffer(),
+        token.publicKey.toBuffer(),
     ],
       program.programId
     );
 
     const [monocleMetadataAccountPda, monoBump] = await PublicKey.findProgramAddress(
       [
-        Buffer.from(anchor.utils.bytes.utf8.encode("monocle")),
-        mint.publicKey.toBuffer(),
-        Buffer.from(anchor.utils.bytes.utf8.encode("monocle-metadata"))
+        Buffer.from("monocle"),
+        token.publicKey.toBuffer(),
+        Buffer.from("monocle-metadata")
     ],
       program.programId
     );
@@ -77,7 +81,7 @@ describe('monocle-program-v2', () => {
         accounts: {
           metadataAccount: metadataAccountPda,
           monocleMetadata: monocleMetadataAccountPda,
-          nftMint: mint.publicKey,
+          nftMint: token.publicKey,
           mintAuthority: program.programId,
           payer: payer.publicKey,
           systemProgram: SystemProgram.programId,

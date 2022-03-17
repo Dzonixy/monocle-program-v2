@@ -19,6 +19,7 @@ pub mod monocle_program_v2 {
         uri: String,
         likes: u64,
     ) -> ProgramResult {
+        msg!("Program initialized!");
         instructions::buy_nft(
             ctx,  
             meta_bump,

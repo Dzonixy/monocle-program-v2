@@ -24,7 +24,7 @@ use crate::{
 #[instruction(meta_bump: u8, mono_bump: u8)]
 pub struct BuyNft<'info> {
     #[account(
-        seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref()],
+        seeds = [MONOCLE_SEED, nft_mint.key().as_ref()],
         bump = meta_bump,
     )]
     pub metadata_account: UncheckedAccount<'info>,
@@ -33,12 +33,11 @@ pub struct BuyNft<'info> {
         seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref(), METADATA_SEED],
         bump = mono_bump,
         payer = payer,
-        space = MonocleNftMetadata::LEN,
     )]
     pub monocle_metadata: Account<'info, MonocleNftMetadata>,
-    #[account()]
-    pub nft_mint: Account<'info, Mint>,
     #[account(mut)]
+    pub nft_mint: Account<'info, Mint>,
+    #[account()]
     pub mint_authority: AccountInfo<'info>,
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -56,6 +55,7 @@ pub fn buy_nft(
     uri: String,
     likes: u64,
     ) -> ProgramResult {    
+        msg!("Proccess initialized!");
         if !(ctx.accounts.metadata_account.data_is_empty() && 
                 *ctx.accounts.metadata_account.owner == system_program::id()) {
             return Err(MonocleErrors::PdaAlreadyInitialized.into());
