@@ -31,7 +31,7 @@ pub struct BuyNft<'info> {
     pub metadata_account: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
-        seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref(), METADATA_SEED],
+        seeds = [MONOCLE_SEED, nft_mint.key().as_ref(), METADATA_SEED],
         bump = mono_bump,
         payer = payer,
     )]
