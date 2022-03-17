@@ -69,7 +69,7 @@ describe('monocle-program-v2', () => {
     );
 
     const likes = new anchor.BN(10);
-
+    console.log("About to initialize")
     const buyTx = await program.rpc.buyNft(
       new anchor.BN(metaBump),
       new anchor.BN(monoBump),

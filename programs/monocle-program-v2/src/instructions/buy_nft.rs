@@ -2,7 +2,7 @@ use anchor_lang::{
     prelude::*,
     solana_program::{
         system_instruction::create_account, 
-        program::invoke,
+        program::invoke_signed,
         system_program,
     },
 };
@@ -49,7 +49,7 @@ pub struct BuyNft<'info> {
 
 pub fn buy_nft(
     ctx: Context<BuyNft>,
-    _meta_bump: u8,
+    meta_bump: u8,
     _mono_bump: u8, 
     name: String, 
     symbol: String,
@@ -93,25 +93,30 @@ pub fn buy_nft(
             &ctx.program_id,
         );
 
-        // TODO: Fix signer privilege issue with metadata_account.
-        // The instruction handles the account as "signer", raising an error
-        invoke(
+        let seeds: &[&[_]] = &[
+            MONOCLE_SEED, 
+            &ctx.accounts.nft_mint.key().to_bytes(), 
+            &[meta_bump],
+        ];
+
+        invoke_signed(
             &create_account_instruction, 
             &[
                 ctx.accounts.payer.to_account_info().clone(),
                 ctx.accounts.metadata_account.to_account_info().clone(),
                 ctx.accounts.system_program.to_account_info().clone(),
-            ]
+            ],
+            &[&seeds],
         )?;
 
-        msg!("Breakpoint 2!");
         ctx.accounts.metadata_account.data.borrow_mut().copy_from_slice(&serialized_data);
+
+        // msg!("\n\n\nMETAPLEX METADATA ACCOUNT DATA: {:?}\n\n\n", ctx.accounts.metadata_account.data);
 
         let monocle_metadata = &mut ctx.accounts.monocle_metadata;
         monocle_metadata.likes = likes;
         monocle_metadata.owner = ctx.accounts.payer.key();
         monocle_metadata.creator = ctx.accounts.mint_authority.key();
 
-        msg!("Instruction executed!");
         Ok(())
 }

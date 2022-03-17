@@ -1,7 +1,7 @@
 use anchor_lang::prelude::*;
 
 #[account]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct MonocleNftMetadata {
     pub owner: Pubkey,
     pub creator: Pubkey,
