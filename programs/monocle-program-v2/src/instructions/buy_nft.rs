@@ -2,7 +2,7 @@ use anchor_lang::{
     prelude::*,
     solana_program::{
         system_instruction::create_account, 
-        program::invoke,
+        program::invoke_signed,
         system_program,
     },
 };
@@ -24,13 +24,14 @@ use crate::{
 #[instruction(meta_bump: u8, mono_bump: u8)]
 pub struct BuyNft<'info> {
     #[account(
+        mut,
         seeds = [MONOCLE_SEED, nft_mint.key().as_ref()],
         bump = meta_bump,
     )]
     pub metadata_account: UncheckedAccount<'info>,
     #[account(
         init_if_needed,
-        seeds = [MONOCLE_SEED, nft_mint.to_account_info().key.as_ref(), METADATA_SEED],
+        seeds = [MONOCLE_SEED, nft_mint.key().as_ref(), METADATA_SEED],
         bump = mono_bump,
         payer = payer,
     )]
@@ -48,7 +49,7 @@ pub struct BuyNft<'info> {
 
 pub fn buy_nft(
     ctx: Context<BuyNft>,
-    _meta_bump: u8,
+    meta_bump: u8,
     _mono_bump: u8, 
     name: String, 
     symbol: String,
@@ -92,16 +93,25 @@ pub fn buy_nft(
             &ctx.program_id,
         );
 
-        invoke(
+        let seeds: &[&[_]] = &[
+            MONOCLE_SEED, 
+            &ctx.accounts.nft_mint.key().to_bytes(), 
+            &[meta_bump],
+        ];
+
+        invoke_signed(
             &create_account_instruction, 
             &[
                 ctx.accounts.payer.to_account_info().clone(),
                 ctx.accounts.metadata_account.to_account_info().clone(),
                 ctx.accounts.system_program.to_account_info().clone(),
-            ]
+            ],
+            &[&seeds],
         )?;
 
         ctx.accounts.metadata_account.data.borrow_mut().copy_from_slice(&serialized_data);
+
+        // msg!("\n\n\nMETAPLEX METADATA ACCOUNT DATA: {:?}\n\n\n", ctx.accounts.metadata_account.data);
 
         let monocle_metadata = &mut ctx.accounts.monocle_metadata;
         monocle_metadata.likes = likes;

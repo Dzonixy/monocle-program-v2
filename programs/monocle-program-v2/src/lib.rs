@@ -5,7 +5,7 @@ pub mod instructions;
 pub mod state;
 pub mod error;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("7mhd1er7u7fuitb6KkE38CNmmBsU5nXK8nBu2ff1jsUn");
 
 #[program]
 pub mod monocle_program_v2 {
